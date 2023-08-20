@@ -1,0 +1,4 @@
+virtualEnviroment
+__pycache__
+Scripts/token.json
+*.json

@@ -1,0 +1,55 @@
+<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js'></script>
+<script>
+var colors = ["rgba(255, 0, 0, 0.5)", "rgba(100, 255, 0, 0.5)", "rgba(200, 50, 255, 0.5)", "rgba(0, 100, 255, 0.5)"]
+var colors = ['#9ACD32', '#FFFF00', '#F5DEB3', '#EE82EE', '#40E0D0', '#FF6347', '#D8BFD8', '#008080', '#D2B48C', '#4682B4', '#00FF7F', '#FFFAFA', '#708090', '#6A5ACD', '#87CEEB', '#C0C0C0', '#A0522D', '#FFF5EE', '#2E8B57', '#F4A460', '#FA8072', '#8B4513', '#4169E1', '#BC8F8F', '#FF0000', '#663399', '#800080', '#B0E0E6', '#DDA0DD', '#FFC0CB', '#CD853F', '#FFDAB9', '#FFEFD5', '#DB7093', '#AFEEEE', '#98FB98', '#EEE8AA', '#DA70D6', '#FF4500', '#FFA500', '#6B8E23', '#808000', '#FDF5E6', '#000080', '#FFDEAD', '#FFE4B5', '#FFE4E1', '#F5FFFA', '#191970', '#C71585', '#48D1CC', '#00FA9A', '#7B68EE', '#3CB371', '#9370DB', '#BA55D3', '#0000CD', '#66CDAA', '#800000', '#FF00FF', '#FAF0E6', '#32CD32', '#00FF00', '#FFFFE0', '#B0C4DE', '#778899', '#87CEFA', '#20B2AA', '#FFA07A', '#FFB6C1', '#90EE90', '#D3D3D3', '#FAFAD2', '#E0FFFF', '#F08080', '#ADD8E6', '#FFFACD', '#7CFC00', '#FFF0F5', '#E6E6FA', '#F0E68C', '#FFFFF0', '#4B0082', '#CD5C5C', '#FF69B4', '#F0FFF0', '#ADFF2F', '#008000', '#808080', '#DAA520', '#FFD700', '#F8F8FF', '#DCDCDC', '#FF00FF', '#228B22', '#FFFAF0', '#B22222', '#1E90FF', '#696969', '#00BFFF', '#FF1493', '#9400D3', '#00CED1', '#2F4F4F', '#483D8B', '#8FBC8F', '#E9967A', '#8B0000', '#9932CC', '#FF8C00', '#556B2F', '#8B008B', '#BDB76B', '#006400', '#A9A9A9', '#B8860B', '#008B8B', '#00008B', '#00FFFF', '#DC143C', '#FFF8DC', '#6495ED', '#FF7F50', '#D2691E', '#7FFF00', '#5F9EA0', '#DEB887', '#A52A2A', '#8A2BE2', '#0000FF', '#FFEBCD', '#000000', '#FFE4C4', '#F5F5DC', '#F0FFFF', '#7FFFD4', '#00FFFF', '#FAEBD7', '#F0F8FF']
+    function pie(ctx_str, labels, data, title){
+        var ctx = $(ctx_str);
+        var myLineChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: title
+                }
+            }
+        });
+    };
+    
+    $(document).ready(function() {
+        {% for pie in pies %}
+        pie("#{{pie['ctx']}}", {{pie["labels"]|safe}}, {{pie["data"]}},'{{pie.title|safe}}');
+        {% endfor %}
+    });
+</script>
+<div class="page-content page-container" id="page-content">
+    <div class="padding">
+        <div class="row">
+            <div class="container-fluid d-flex justify-content-center">
+                {% for pie in pies %}
+                <div class="col-sm-8 col-md-3">
+                    <div class="card">
+                        <div class="card-header">{{pie['title']}}</div>
+                        <div class="card-body" style="height: 420px">
+                            <div class="chartjs-size-monitor" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;">
+                                <div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;">
+                                    <div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div>
+                                </div>
+                                <div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;">
+                                    <div style="position:absolute;width:200%;height:200%;left:0; top:0"></div>
+                                </div>
+                            </div> <canvas id="{{pie['ctx']}}" width="221" height="184" class="chartjs-render-monitor" style="display: block; width: 299px; height: 200px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

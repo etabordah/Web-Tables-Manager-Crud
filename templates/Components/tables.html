@@ -1,0 +1,191 @@
+
+{% set vars = {'anyNewEntry': false} %}
+
+{% for table in tables %}
+<div class="container-xl">
+    <div class="table-responsive">
+        <div class="table-wrapper">
+            <div class="table-title">
+                <div class="row">
+                    <div class="col-sm-7" id="title"><h2>{{table["title"]}}</h2></div>
+                    {% if 'newEntry' in table %}
+                    <div class="col-sm-2" style="display: flex; justify-content: flex-end">
+                        <a class="btn btn-primary" href="#{{table.newEntry.table}}newEntry" class="trigger-btn" data-toggle="modal">Adicionar</a>
+                    </div>
+                    {% endif %}
+                    <div class="col-sm-3">
+                        <div class="search-box" style="display: none;">
+                            <i class="material-icons">&#xE8B6;</i>
+                            <input type="text" class="form-control" placeholder="Search&hellip;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table class="table table-striped table-hover table-bordered">
+                <thead>
+                    <tr>
+                        {% for col in table["header"] %}
+                            <th scope="col">{{col}}<i class="fa fa-sort"></i></th>
+                        {% endfor %}
+        				{% if 'delete' in table %}<th>Actions</th>{% endif %}
+                    </tr>
+                </thead>
+                
+                <tbody>
+                    {% for row in table["rows"] %}
+                    <tr scope="row">
+                        {% for col in table["header"] %}
+                            <td name={{row[col]}}>{{row[col]}}</td>
+                        {% endfor %} 
+					{% if 'delete' in table and 'newEntry' in table %}					   
+                    <td>
+                        <a href="#" class="view" style="display: None;" title="View" data-toggle="tooltip"><i class="material-icons">&#xE417;</i></a>
+                        {%- set key = table.key -%}
+                        <a href="#{{table.newEntry.table}}editEntryWindow" class="edit trigger-btn" data-toggle="modal" title="Edit" data-toggle="tooltip" onclick="fillEntry('{{table.newEntry.table}}', '{{table.key|safe}}',{{row|safe}})"><i class="material-icons">&#xE254;</i></a>     
+                        <a href="#" class="delete" onclick="deleteEntry('{{table.newEntry.table}}','{{row[key]}}')" title="Delete" data-toggle="modal"><i class="material-icons">&#xE872;</i></a>
+                    </td>
+                    {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                
+            </table>
+            <div class="clearfix">
+                <div class="hint-text">Showing <b>{{table.rows|length}}</b> out of <b>{{table.rows|length}}</b> entries</div>
+                <ul class="pagination" style="display: none;">
+                    <li class="page-item disabled"><a href="#"><i class="fa fa-angle-double-left"></i></a></li>
+                    <li class="page-item"><a href="#" class="page-link">1</a></li>
+                    <li class="page-item"><a href="#" class="page-link">2</a></li>
+                    <li class="page-item active"><a href="#" class="page-link">3</a></li>
+                    <li class="page-item"><a href="#" class="page-link">4</a></li>
+                    <li class="page-item"><a href="#" class="page-link">5</a></li>
+                    <li class="page-item"><a href="#" class="page-link"><i class="fa fa-angle-double-right"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>  
+</div>   
+
+{% if 'newEntry' in table %}
+{% if vars.update({'anyNewEntry': True}) %} {% endif %}
+<div id="{{table.newEntry.table}}newEntry" class="modal fade">
+	<div class="modal-dialog modal-login">
+		<div class="modal-content">
+			<form>
+				<div class="modal-header">				
+					<h4 class="modal-title">Adicionar</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				</div>
+				<div class="modal-body">	
+                    <label for="table">Table:</label>  
+                    <input type="text" readonly class="form-control-plaintext" id="table.{{table.newEntry.table}}" name="table.{{table.newEntry.table}}" value="{{table.newEntry.table}}"><br><br>
+    				{% for col in table['newEntry']['columns'] %}
+					<div class="form-group">
+						<label for={{col['name']}}>{{col['name']}}</label>
+						<input id={{table.newEntry.table}}.{{col['name']}} name={{col['name']}} type={{col['type']}} class="form-control" required="required">
+					</div>
+					{% endfor %}
+				</div>
+				
+				<div class="modal-footer justify-content-between">
+                    {%- set cols = [] -%}
+                    {%- for item in table.newEntry.columns -%}
+                        {%- set _ = cols.append(item.name) -%}
+                    {% endfor %}
+					<input type="submit" onclick="newEntry('{{table.newEntry.table}}',{{cols|safe}})" id="submit" class="btn btn-primary" value="submit">
+				</div>
+			</form>
+		</div>
+	</div>
+</div>  
+<div id="{{table.newEntry.table}}editEntryWindow" class="modal fade">
+	<div class="modal-dialog modal-login">
+		<div class="modal-content">
+			<form id="{{table.newEntry.table}}editEntry">
+				<div class="modal-header">				
+					<h4 class="modal-title">Editar</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				</div>
+				<div class="modal-body">	
+                    <label for="table">Table:</label>  
+                    <input type="text" readonly class="form-control-plaintext" id="table.edit.{{table.newEntry.table}}" name="table.{{table.newEntry.table}}" value="{{table.newEntry.table}}"><br><br>
+                    <label for="table">{{table.key}}:</label>  
+    				<input type="text" readonly class="form-control-plaintext" id="edit.{{table.newEntry.table}}.{{table.key}}" name="{{table.key}}" value="{{table.key}}"><br><br>
+    				{% for col in table['newEntry']['columns'] %}
+					<div class="form-group">
+						<label for={{col['name']}}>{{col['name']}}</label>
+						<input id=edit.{{table.newEntry.table}}.{{col['name']}} name={{col['name']}} type={{col['type']}} class="form-control" required="required">
+					</div>
+					{% endfor %}
+				</div>
+				
+				<div class="modal-footer justify-content-between">
+                    {%- set cols = [] -%}
+                    {%- for item in table.newEntry.columns -%}
+                        {%- set _ = cols.append(item.name) -%}
+                    {% endfor %}
+					<input type="submit" onclick="editEntry('{{table.newEntry.table}}', '{{table.key}}',{{cols|safe}})" id="submit" class="btn btn-primary" value="submit">
+				</div>
+			</form>
+		</div>
+	</div>
+</div>  
+{% endif %}
+{% endfor %}
+
+{% if vars['anyNewEntry'] %}
+<script>
+   async function newEntry(table,columns){
+    var jsonObject = {};
+    jsonObject['table'] = table;
+    columns.forEach(function(col){
+      jsonObject[col] = document.getElementById(table+'.'+col).value;})
+        const response = await fetch('/insert', {
+                    method: 'POST',
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                    body: JSON.stringify(jsonObject),
+                  });
+};
+
+async function deleteEntry(table, key) {
+    const response = await fetch(['/delete', table, key].join("/"), {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    location.reload();
+}
+
+function fillEntry(table, key_col, values) {
+    var form = document.getElementById(table+"editEntry");
+    for (var key in values) {
+        if (values.hasOwnProperty(key)) {
+            var element = form.elements[key];
+            if (element) {
+                element.value = values[key];
+            }
+        }
+    }
+}
+
+async function editEntry(table, key, columns){
+ var jsonObject = {};
+ jsonObject['table'] = table;
+ columns.push(key);
+ columns.forEach(function(col){
+   jsonObject[col] = document.getElementById('edit.'+table+'.'+col).value;})
+     const response = await fetch(['/edit', table, key].join("/"), {
+                 method: 'POST',
+                   headers: {
+                     "Content-Type": "application/json",
+                   },
+                 body: JSON.stringify(jsonObject),
+               });
+};
+</script>
+{% endif %}
+</body>
+</html>
